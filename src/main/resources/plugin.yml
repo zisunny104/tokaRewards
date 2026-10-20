@@ -1,0 +1,16 @@
+name: tokaRewards
+main: dev.toka.rewards.Main
+version: 0.1.0
+api: ["1.0.0"]
+author: zisunny104
+softdepend: [tokaEconomy, Plan]
+commands:
+  rewards:
+    description: 獎勵與每日簽到
+    usage: /rewards help
+    aliases: [reward]
+permissions:
+  tokaRewards.use:
+    default: true
+  tokaRewards.admin:
+    default: op

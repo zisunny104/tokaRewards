@@ -1,0 +1,55 @@
+help:
+  title: '§6=== §f§l獎勵 說明§r §6==='
+  claim: '§e/rewards claim §7- §b每日簽到'
+  status: '§e/rewards status §7- §b查看簽到狀態'
+  auto: '§e/rewards auto <on|off> §7- §b設定自動簽到'
+  retry: '§e/rewards retry §7- §b分批重試待領獎勵'
+  reload: '§e/rewards reload §7- §b重新讀取設定'
+  grant: '§e/rewards grant <UUID> <命名空間> <領獎ID> <貨幣> <金額> §7- §b以固定 ID 發放獎勵'
+  plan: '§e/rewards plan <status|mode <auto|enable|disable>|fields <all|none|欄位...>> §7- §b管理 Plan 展示'
+msg:
+  PAID: '§7[獎勵] §a簽到完成，獲得 ${0}，連續 ${1} 天。'
+  ALREADY: '§7[獎勵] §e今天已簽到。'
+  PENDING: '§7[獎勵] §e獎勵已保留待領，稍後重試。'
+  DISABLED: '§7[獎勵] §e每日簽到尚未啟用。'
+  status: '§7[獎勵] §b最後簽到：§a${0}§b，連續 §a${1}§b 天，累計 §a${2}§b 次。'
+  automatic: '§7[獎勵] §a自動簽到已設為 ${0}。'
+  retry: '§7[獎勵] §a已排入 ${0} 筆待領獎勵。'
+  reloaded: '§7[獎勵] §a設定已重新讀取。'
+  processing: '§7[獎勵] §b正在處理。'
+  grant: '§7[獎勵] §b狀態：§a${0}§b，領獎 ID：§a${1}§b，金額：§a${2}§b。'
+err:
+  permission: '§7[獎勵] §c沒有使用權限。'
+  player: '§7[獎勵] §e此指令需要在遊戲中使用。'
+  syntax: '§7[獎勵] §e參數無效，請使用 /rewards help。'
+  failed: '§7[獎勵] §c處理失敗，請稍後重試。'
+  backend: '§7[獎勵] §c儲存格式變更需要停用插件後另行搬遷。'
+ui:
+  title: 每日簽到
+  body: '最後簽到：${0}\n連續 ${1} 天，累計 ${2} 次。'
+  claim: 簽到
+  vote: '投票網址：${0}'
+  back: 返回
+log:
+  ready: '已載入獎勵系統，儲存格式：${0}。'
+  failed: '獎勵資料處理失敗。'
+  config: '設定無效，保留上一份有效設定。'
+  stopped: '獎勵系統已關閉。'
+status:
+  on: 開啟
+  off: 關閉
+plan:
+  streak: 連續簽到天數
+  total: 接管後累計簽到次數
+  lastDay: 最後簽到日期
+  automatic: 自動簽到
+  pending: 全服待領獎勵
+  ready: 已連接 Plan 資料展示。
+  unsupported: Plan 版本或 API 尚未就緒，獎勵功能可繼續使用。
+  unavailable: Plan 資料展示暫時不可用。
+  missing: '已要求啟用 Plan 展示，但 Plan 尚未就緒；使用 /${0} plan mode auto 可改為自動偵測。'
+  detected: '已偵測到 Plan，目前模式 ${0}；使用 /${1} plan status 查看展示設定。'
+  configureFailed: 'Plan 設定未完成：${0}。'
+  noPermission: '§c沒有管理 Plan 展示的權限。'
+  configured: '§aPlan 展示設定已儲存；使用 /${0} plan status 查看。'
+  usage: '§e/${0} plan status | mode <auto|enable|disable> | fields <all|none|欄位...>'

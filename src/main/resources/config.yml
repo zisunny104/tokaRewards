@@ -1,0 +1,33 @@
+# 語系；文字覆寫可放在 lang/zh-TW.yml。
+language: zh-TW
+storage:
+  backend: sqlite # sqlite | json | yaml；變更格式需先匯出與驗證，不會自動搬移。
+  cache-entries: 512 # 只保留近期玩家摘要，舊紀錄由背景讀取。
+  max-pending: 10000 # 待領獎勵／工作佇列上限；達上限拒絕新增，不刪舊紀錄。
+  batch-size: 100 # 每次重試或匯入的批次上限。
+daily:
+  enabled: false # 舊簽到完成交接後開啟；新伺服器也可自行啟用。
+  timezone: Asia/Taipei # 每日換日使用的 IANA 時區。
+  currency: money # tokaEconomy 的貨幣代碼，不是顯示名稱。
+  base-amount: 50
+  consecutive-amount: 75
+  show-on-join: true # 登入後顯示簽到入口；玩家自己的自動簽到設定優先。
+vote:
+  enabled: false # 未設定服務時，一般簽到仍可使用。
+  endpoint: https://minecraftpocket-servers.com/api/
+  api-key: '' # 私人金鑰；不要提交版控或貼入日誌。
+  url: '' # 玩家投票網址。
+  bonus-threshold: 1 # 當月票數達門檻才套用加成。
+  bonus-multiplier: 0 # 額外金額＝簽到金×此倍率，無條件捨去；0 表示未啟用金額加成。
+  timeout-ms: 2500
+  cache-seconds: 60
+  max-response-bytes: 1048576
+  concurrency: 2
+  cache-entries: 512
+maintenance:
+  retry-seconds: 60 # 背景分批重試待領獎勵；使用同一領獎 ID。
+plan:
+  mode: auto # auto：偵測到 Plan 就啟用；enable：未就緒時提示；disable：一定不發布。
+  fields: all # all | none | [streak, total, last-day, automatic, pending]
+  max-snapshots: 1000
+  refresh-seconds: 60
