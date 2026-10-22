@@ -2,7 +2,7 @@ help:
   title: '§6=== §f§l獎勵 說明§r §6==='
   claim: '§e/rewards claim §7- §b每日簽到'
   status: '§e/rewards status §7- §b查看簽到狀態'
-  auto: '§e/rewards auto <on|off> §7- §b設定自動簽到'
+  auto: '§e/rewards auto <on|off> §7- §b設定登入時自動領取'
   retry: '§e/rewards retry §7- §b分批重試待領獎勵'
   reload: '§e/rewards reload §7- §b重新讀取設定'
   grant: '§e/rewards grant <UUID> <命名空間> <領獎ID> <貨幣> <金額> §7- §b以固定 ID 發放獎勵'
@@ -13,7 +13,7 @@ msg:
   PENDING: '§7[獎勵] §e獎勵已保留待領，稍後重試。'
   DISABLED: '§7[獎勵] §e每日簽到尚未啟用。'
   status: '§7[獎勵] §b最後簽到：§a${0}§b，連續 §a${1}§b 天，累計 §a${2}§b 次。'
-  automatic: '§7[獎勵] §a自動簽到已設為 ${0}。'
+  automatic: '§7[獎勵] §a登入時自動領取已設為 ${0}。'
   retry: '§7[獎勵] §a已排入 ${0} 筆待領獎勵。'
   reloaded: '§7[獎勵] §a設定已重新讀取。'
   processing: '§7[獎勵] §b正在處理。'
@@ -36,13 +36,13 @@ log:
   config: '設定無效，保留上一份有效設定。'
   stopped: '獎勵系統已關閉。'
 status:
-  on: 開啟
-  off: 關閉
+  "on": 開啟
+  "off": 關閉
 plan:
   streak: 連續簽到天數
-  total: 接管後累計簽到次數
+  total: 累計簽到次數
   lastDay: 最後簽到日期
-  automatic: 自動簽到
+  automatic: 登入時自動領取
   pending: 全服待領獎勵
   ready: 已連接 Plan 資料展示。
   unsupported: Plan 版本或 API 尚未就緒，獎勵功能可繼續使用。

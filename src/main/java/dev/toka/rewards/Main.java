@@ -3,6 +3,8 @@ package dev.toka.rewards;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.*;
+import cn.nukkit.command.data.CommandParameter;
+import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.event.*;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.plugin.*;
@@ -33,6 +35,11 @@ public final class Main extends PluginBase implements Listener {
 
     @Override public void onEnable() {
         saveDefaultConfig();
+        suggest("rewards",
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"help","claim","status","auto","reload","retry","grant","plan"})},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"auto"}), CommandParameter.newEnum("自動領取", new String[]{"on","off"})},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"grant"}), CommandParameter.newType("玩家UUID", CommandParamType.STRING), CommandParameter.newType("命名空間", CommandParamType.STRING), CommandParameter.newType("操作", CommandParamType.STRING), CommandParameter.newType("貨幣", CommandParamType.STRING), CommandParameter.newType("金額", CommandParamType.INT)},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"plan"}), CommandParameter.newEnum("Plan動作", new String[]{"status","mode","fields"}), CommandParameter.newType("設定", true, CommandParamType.RAWTEXT)});
         try {
             messages = new Messages(getClass().getClassLoader(), getDataFolder().toPath(), getConfig().getString("language"), getLogger()::warning);
             backend = Backend.valueOf(getConfig().getString("storage.backend").toUpperCase(Locale.ROOT));
@@ -52,6 +59,13 @@ public final class Main extends PluginBase implements Listener {
             getLogger().error(messages == null ? "獎勵系統設定或儲存載入失敗。" : text("log.failed"), error);
             getServer().getPluginManager().disablePlugin(this);
         }
+    }
+
+    private void suggest(String name, CommandParameter[]... forms) {
+        Command registered = (Command) getCommand(name);
+        if (registered == null) return;
+        registered.getCommandParameters().clear();
+        for (int i = 0; i < forms.length; i++) registered.addCommandParameters("choice" + i, forms[i]);
     }
     private int seconds(String key) {
         int value = getConfig().getInt(key);
