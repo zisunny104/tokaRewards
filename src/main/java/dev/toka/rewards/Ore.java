@@ -99,10 +99,10 @@ final class Ore implements Listener {
         tell(player, plugin.messages().text("ore.found", won, faces.isEmpty() ? "" : faces.get(ThreadLocalRandom.current().nextInt(faces.size()))));
     }
 
-    /** The message goes under the base information of tokaDisplay for two seconds; without it, into the chat. */
+    /** The message goes under the base information of tokaDisplay for as long as that shows such messages; without it, into the chat. */
     private void tell(Player player, String text) {
         Method flash = method("tokaDisplay", "dev.toka.display.Main", "flash", Player.class, String.class, int.class, float.class, String.class);
-        try { if (flash != null) { flash.invoke(null, player, text, 2, -1f, null); return; } }
+        try { if (flash != null) { flash.invoke(null, player, text, 0, -1f, null); return; } }
         catch (ReflectiveOperationException | LinkageError unavailable) { /* chat below */ }
         player.sendMessage(text);
     }

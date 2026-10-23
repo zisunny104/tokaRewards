@@ -41,10 +41,10 @@ ore:
     coal: {chance: 35, min: 10, max: 20}
     iron: {chance: 45, min: 10, max: 25}
     gold: {chance: 45, min: 15, max: 25}
-    redstone: {chance: 30, min: 3, max: 20}
-    quartz: {chance: 50, min: 3, max: 20}
+    redstone: {chance: 35, min: 5, max: 15}
+    quartz: {chance: 40, min: 5, max: 15}
     diamond: {chance: 70, min: 30, max: 90}
-    lapis: {chance: 40, min: 3, max: 20}
+    lapis: {chance: 40, min: 5, max: 15}
     emerald: {chance: 50, min: 20, max: 40}
 maintenance:
   retry-seconds: 60 # 背景分批重試待領獎勵；使用同一領獎 ID。
