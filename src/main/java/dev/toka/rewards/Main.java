@@ -80,12 +80,6 @@ public final class Main extends PluginBase implements Listener {
     private Ore ore;
     private cn.nukkit.scheduler.TaskHandler oreTask;
 
-    /** Whether mining pays from here. For zero's hand-over check, by reflection. */
-    public static boolean handlesOre() {
-        var plugin = Server.getInstance().getPluginManager().getPlugin("tokaRewards");
-        return plugin instanceof Main main && main.isEnabled() && main.ore != null && main.ore.enabled();
-    }
-
     private void scheduleTasks() {
         int retry=seconds("maintenance.retry-seconds"),refresh=seconds("plan.refresh-seconds");
         if(oreTask!=null)oreTask.cancel();
@@ -102,8 +96,6 @@ public final class Main extends PluginBase implements Listener {
         if (service != null) try { service.close(); } catch (Exception error) { getLogger().error(text("log.failed"), error); }
     }
     public RewardsService service() { return service; }
-    public CompletableFuture<Integer> importProfilesJson(String json) { return service.importProfiles(json); }
-    public CompletableFuture<String> profileJson(UUID uuid) { return service.profile(uuid).thenApply(JsonObject::toString); }
     public CompletableFuture<RewardsService.Result> grant(UUID uuid, String namespace, String operation, String currency, long amount) {
         return service.grant(uuid, namespace, operation, currency, amount);
     }

@@ -19,7 +19,7 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 
 1. 將 output 的 JAR 放入 plugins，啟動產生設定。
 2. 檢查貨幣代碼、時區與獎勵金額。儲存預設 sqlite，也支援 json、yaml；不能只改 backend 就當作完成資料搬遷。
-3. 原本使用 zero 簽到時，先保持 daily.enabled: false，由 **zero 的交接工具**匯出、驗證及切換。新插件不讀取 zero 私有資料格式。
+3. 舊簽到資料已由 zero 的交接工具一次性匯入並切換（zero 已退場）；新插件不讀取舊資料格式。
 4. 全新伺服器可自行啟用 daily.enabled，再執行 /rewards reload。
 
 私人 API key 僅放 VPS 設定，不要提交 GitHub。三種儲存的 I/O 在背景序列執行，快取與工作佇列都有上限；達上限拒絕新增，不丟棄舊待領紀錄。
@@ -48,4 +48,4 @@ Main 提供 importProfilesJson、profileJson、grant、planStatusJson、configur
 
 執行 build.ps1。產物在本專案 output 與 ../plugin-modernization/output；這些產物不進版控。測試涵蓋跨月跨年、同日重複領取、三種後端、重啟重試、入帳後標記失敗及匯入衝突。尚需在實際伺服器完成舊資料交接與遊戲內驗證。
 
-整體拆分與交接進度以 [zero 的架構文件](https://github.com/zisunny104/zero/blob/master/docs/ARCHITECTURE.md) 為準。
+整體拆分紀錄見 [架構文件](https://github.com/zisunny104/zero/blob/master/docs/ARCHITECTURE.md) 為準。
