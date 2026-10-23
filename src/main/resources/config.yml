@@ -19,6 +19,7 @@ vote:
   url: '' # 玩家投票網址。
   bonus-threshold: 1 # 當月票數達門檻才套用加成。
   bonus-multiplier: 0 # 額外金額＝簽到金×此倍率，無條件捨去；0 表示未啟用金額加成。
+  claim: true # 簽到加成發出後，到投票網站把這次投票標示為已領取；只有「已投票、尚未領取」的票才有加成。bonus-multiplier 為 0 時不會標示。
   timeout-ms: 2500
   cache-seconds: 60
   max-response-bytes: 1048576

@@ -10,10 +10,10 @@ import java.util.concurrent.*;
 
 /** Read-only vote queries. Credentials/URLs/responses never escape through errors or logs. */
 public final class VoteClient implements AutoCloseable {
-    public record Snapshot(boolean available, long votes, boolean voted) {
-        public static Snapshot unavailable() { return new Snapshot(false, -1, false); }
+    public record Snapshot(boolean available, long votes, boolean voted, boolean unclaimed) {
+        public static Snapshot unavailable() { return new Snapshot(false, -1, false, false); }
     }
-    public record Settings(boolean enabled, String endpoint, String key, String voteUrl, int timeout, int ttl, int bytes, int concurrency, int cacheSize) {
+    public record Settings(boolean enabled, String endpoint, String key, String voteUrl, int timeout, int ttl, int bytes, int concurrency, int cacheSize, boolean claim) {
         public static Settings parse(Map<?, ?> root) {
             Map<?, ?> vote = (Map<?, ?>) root.get("vote");
             boolean enabled = Boolean.TRUE.equals(vote.get("enabled"));
@@ -22,7 +22,7 @@ public final class VoteClient implements AutoCloseable {
             if (!"https".equals(uri.getScheme()) || uri.getHost() == null || uri.getRawQuery() != null || uri.getRawFragment() != null || uri.getUserInfo() != null) throw new IllegalArgumentException("vote.endpoint");
             if (enabled && key.isBlank()) throw new IllegalArgumentException("vote.api-key");
             return new Settings(enabled, endpoint, key, voteUrl, number(vote,"timeout-ms",100,30000), number(vote,"cache-seconds",1,3600),
-                    number(vote,"max-response-bytes",1024,4194304), number(vote,"concurrency",1,8), number(vote,"cache-entries",1,10000));
+                    number(vote,"max-response-bytes",1024,4194304), number(vote,"concurrency",1,8), number(vote,"cache-entries",1,10000), !Boolean.FALSE.equals(vote.get("claim")));
         }
         private static String text(Map<?, ?> map, String key) { return Objects.toString(map.get(key), ""); }
         private static int number(Map<?, ?> map, String key, int min, int max) {
@@ -44,6 +44,18 @@ public final class VoteClient implements AutoCloseable {
                 new ArrayBlockingQueue<>(settings.cacheSize()), job -> { Thread t = new Thread(job,"tokaRewards-vote"); t.setDaemon(true); return t; });
     }
     public String url() { return settings.voteUrl(); }
+    /** Whether a vote is marked as claimed on the vote site once its reward has been paid */
+    public boolean claimEnabled() { return settings.enabled() && settings.claim(); }
+    /** Marks the vote of the last 24 hours as claimed. True only when the site answers that it is claimed. */
+    public CompletableFuture<Boolean> claim(String name) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String answer = read(settings.endpoint()+"?action=post&object=votes&element=claim&key="+encode(settings.key())+"&username="+encode(name)).trim();
+                synchronized (cache) { cache.remove(name); }
+                return "1".equals(answer);
+            } catch (Exception ignored) { return false; }
+        }, worker);
+    }
     public CompletableFuture<Snapshot> lookup(String name) {
         if (!settings.enabled()) return CompletableFuture.completedFuture(Snapshot.unavailable());
         Cached old = cache.get(name);
@@ -62,7 +74,7 @@ public final class VoteClient implements AutoCloseable {
                     if (name.equalsIgnoreCase(row.get("nickname").getAsString())) votes = row.get("votes").getAsBigDecimal().longValueExact();
                 }
                 String state=read(base+"&object=votes&element=claim&username="+encode(name)).trim();
-                if (votes >= 0 && Set.of("0","1","2").contains(state)) result = new Snapshot(true,votes,!"0".equals(state));
+                if (votes >= 0 && Set.of("0","1","2").contains(state)) result = new Snapshot(true,votes,!"0".equals(state),"1".equals(state));
             } catch (Exception ignored) { /* Unknown is never represented as a confirmed zero. */ }
             synchronized (cache) {
                 cache.put(name,new Cached(result,clock.millis()));

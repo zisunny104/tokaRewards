@@ -190,7 +190,15 @@ public final class Main extends PluginBase implements Listener {
         if (!player.hasPermission("tokaRewards.use")) { send(player,"err.permission"); return; }
         UUID uuid = player.getUniqueId(); String name = player.getName();
         send(player,"msg.processing");
-        votes.lookup(name).thenCompose(vote -> service.daily(uuid,name,vote.available()?vote.votes():-1))
+        votes.lookup(name).thenCompose(vote -> {
+                    // with claiming on, only a vote that has not been claimed earns the bonus, and it is claimed once the reward is paid
+                    boolean claiming = votes.claimEnabled() && service.settings().voteMultiplier().signum() > 0;
+                    boolean bonus = vote.available() && (!claiming || vote.unclaimed());
+                    return service.daily(uuid,name,bonus?vote.votes():-1).thenApply(result -> {
+                        if (claiming && vote.available() && vote.unclaimed() && "PAID".equals(result.status())) votes.claim(name);
+                        return result;
+                    });
+                })
                 .whenComplete((result,error) -> main(() -> {
                     if (error != null) { getLogger().error(text("log.failed"),error); if(player.isOnline())send(player,"err.failed"); return; }
                     if(player.isOnline()) send(player,"msg."+result.status(), result.amount()+" "+service.settings().currency(),result.streak());
