@@ -52,6 +52,7 @@ public final class Main extends PluginBase implements Listener {
             planControl = new dev.toka.rewards.plan.PlanControl(this, () -> { closePlan(); attachPlan(); },
                     () -> Set.of("streak","total","last-day","automatic","pending"),
                     (key,args) -> text(key,args), "rewards");
+            sponsors=new Sponsors(this,service);
             scheduleTasks();
             attachPlan();
             getLogger().info(text("log.ready", backend.name().toLowerCase(Locale.ROOT)));
@@ -75,6 +76,11 @@ public final class Main extends PluginBase implements Listener {
         int retry=seconds("maintenance.retry-seconds"),refresh=seconds("plan.refresh-seconds");
         if(retryTask!=null)retryTask.cancel();if(planTask!=null)planTask.cancel();
         retryTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,()->service.retryPending(),retry*20,retry*20);
+        if(sponsorTask!=null)sponsorTask.cancel();
+        if(getConfig().getBoolean("sponsor.enabled",false)){
+            int every=Math.max(10,Math.min(3600,getConfig().getInt("sponsor.check-seconds",60)));
+            sponsorTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,()->sponsors.check(),200,every*20);
+        }
         planTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,this::publishPlan,refresh*20,refresh*20);
     }
     @Override public void onDisable() {
@@ -89,6 +95,13 @@ public final class Main extends PluginBase implements Listener {
         return service.grant(uuid, namespace, operation, currency, amount);
     }
     private String text(String key, Object... args) { return messages.text(key, args); }
+    private Sponsors sponsors;
+    private cn.nukkit.scheduler.TaskHandler sponsorTask;
+    public dev.toka.i18n.Messages messages() { return messages; }
+    /** Tells a donor who is online that the reward has arrived. */
+    void sponsorPaid(UUID player, long amount) {
+        main(() -> { Player online = getServer().getOnlinePlayers().get(player); if (online != null) online.sendMessage(text("sponsor.paid", amount)); });
+    }
     private void main(Runnable task) {
         if (isEnabled()) getServer().getScheduler().scheduleTask(this, () -> { if (isEnabled()) task.run(); });
     }
