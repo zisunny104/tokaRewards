@@ -39,7 +39,9 @@ public final class Main extends PluginBase implements Listener {
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"help","claim","status","auto","reload","retry","grant","plan"})},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"auto"}), CommandParameter.newEnum("自動領取", new String[]{"on","off"})},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"grant"}), CommandParameter.newType("玩家UUID", CommandParamType.STRING), CommandParameter.newType("命名空間", CommandParamType.STRING), CommandParameter.newType("操作", CommandParamType.STRING), CommandParameter.newType("貨幣", CommandParamType.STRING), CommandParameter.newType("金額", CommandParamType.INT)},
-                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"plan"}), CommandParameter.newEnum("Plan動作", new String[]{"status","mode","fields"}), CommandParameter.newType("設定", true, CommandParamType.RAWTEXT)});
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"plan"}), CommandParameter.newEnum("Plan動作", new String[]{"status"})},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"plan"}), CommandParameter.newEnum("Plan動作", new String[]{"mode"}), CommandParameter.newEnum("模式", new String[]{"auto","enable","disable"})},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"plan"}), CommandParameter.newEnum("Plan動作", new String[]{"fields"}), CommandParameter.newType("欄位", CommandParamType.RAWTEXT)});
         try {
             messages = new Messages(getClass().getClassLoader(), getDataFolder().toPath(), getConfig().getString("language"), getLogger()::warning);
             backend = Backend.valueOf(getConfig().getString("storage.backend").toUpperCase(Locale.ROOT));

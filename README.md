@@ -36,7 +36,7 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 | /rewards plan mode <auto\|enable\|disable> | tokaRewards.admin |
 | /rewards plan fields <all\|none\|欄位...> | tokaRewards.admin |
 
-Plan 預設 mode: auto、fields: all；enable 在 Plan 未就緒時提示，disable 一定不發布。欄位為 streak、total、last-day、automatic、pending，不包含憑證或私人座標。`automatic` 只表示玩家是否啟用登入時自動領取；一般簽到仍是玩家按下視窗按鈕。`total` 顯示為「累計簽到次數」，從 tokaRewards 開始記錄；舊資料沒有完整總次數，因此不回推歷史值。Plan 自己的玩家頁面閱覽權限仍由 Plan 管理。
+Plan 預設 mode: auto、fields: all；enable 在 Plan 未就緒時提示，disable 一定不發布。欄位為 streak、total、last-day、automatic、pending，不包含憑證或私人座標。`automatic` 只表示玩家是否啟用登入時自動領取；一般簽到仍是玩家按下視窗按鈕。`total` 顯示為「累計簽到次數」。Plan 自己的玩家頁面閱覽權限仍由 Plan 管理。
 
 ## API 與安全重試
 
