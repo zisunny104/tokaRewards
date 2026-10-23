@@ -10,6 +10,7 @@ import cn.nukkit.event.plugin.*;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.form.response.FormResponseSimple;
+import cn.nukkit.Server;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import com.google.gson.*;
@@ -54,6 +55,9 @@ public final class Main extends PluginBase implements Listener {
             planControl = new dev.toka.rewards.plan.PlanControl(this, () -> { closePlan(); attachPlan(); },
                     () -> Set.of("streak","total","last-day","automatic","pending"),
                     (key,args) -> text(key,args), "rewards");
+            ore = new Ore(this);
+            ore.load();
+            getServer().getPluginManager().registerEvents(ore, this);
             scheduleTasks();
             attachPlan();
             getLogger().info(text("log.ready", backend.name().toLowerCase(Locale.ROOT)));
@@ -73,13 +77,26 @@ public final class Main extends PluginBase implements Listener {
         int value = getConfig().getInt(key);
         if (value < 1 || value > 3600) throw new IllegalArgumentException(key); return value;
     }
+    private Ore ore;
+    private cn.nukkit.scheduler.TaskHandler oreTask;
+
+    /** Whether mining pays from here. For zero's hand-over check, by reflection. */
+    public static boolean handlesOre() {
+        var plugin = Server.getInstance().getPluginManager().getPlugin("tokaRewards");
+        return plugin instanceof Main main && main.isEnabled() && main.ore != null && main.ore.enabled();
+    }
+
     private void scheduleTasks() {
         int retry=seconds("maintenance.retry-seconds"),refresh=seconds("plan.refresh-seconds");
+        if(oreTask!=null)oreTask.cancel();
+        int payEvery=Math.max(2,Math.min(120,getConfig().getInt("ore.pay-seconds",10)));
+        oreTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,()->ore.pay(),payEvery*20,payEvery*20);
         if(retryTask!=null)retryTask.cancel();if(planTask!=null)planTask.cancel();
         retryTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,()->service.retryPending(),retry*20,retry*20);
         planTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,this::publishPlan,refresh*20,refresh*20);
     }
     @Override public void onDisable() {
+        if (ore != null) ore.pay();
         closePlan(); forms.clear();
         if (votes != null) votes.close();
         if (service != null) try { service.close(); } catch (Exception error) { getLogger().error(text("log.failed"), error); }
@@ -91,6 +108,7 @@ public final class Main extends PluginBase implements Listener {
         return service.grant(uuid, namespace, operation, currency, amount);
     }
     private String text(String key, Object... args) { return messages.text(key, args); }
+    public dev.toka.i18n.Messages messages() { return messages; }
     /**
      * /rewards sponsor <player> <amount> [text]: the reward for a donation, given once now. The donation is also written in the
      * player's note in tokaProfiles ({@code donation amount= id= reward=}), which is the record of who gave what.
@@ -103,7 +121,7 @@ public final class Main extends PluginBase implements Listener {
             donated = Long.parseLong(args[2]);
             if (donated < 1 || donated > 100_000_000L) throw new NumberFormatException();
         } catch (RuntimeException bad) { send(sender, "sponsor.usage"); return; }
-        String currency = getConfig().getString("sponsor.currency", "gold");
+        String currency = getConfig().getString("sponsor.currency", "coin");
         long reward = (long) Math.floor(donated * getConfig().getDouble("sponsor.per-unit", 1));
         if (reward < 1) { send(sender, "sponsor.usage"); return; }
         java.time.LocalDateTime now = java.time.LocalDateTime.now();

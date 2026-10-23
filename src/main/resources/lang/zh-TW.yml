@@ -8,6 +8,17 @@ help:
   sponsor: '§e/rewards sponsor <玩家> <金額> [說明] §7- §b發放贊助獎勵並記進玩家備註'
   grant: '§e/rewards grant <UUID> <命名空間> <領獎ID> <貨幣> <金額> §7- §b以固定 ID 發放獎勵'
   plan: '§e/rewards plan <status|mode <auto|enable|disable>|fields <all|none|欄位...>> §7- §b管理 Plan 展示'
+ore:
+  # ${0}＝獲得的金額、${1}＝隨機的顏文字
+  found: "§e[獎勵] 恭喜發現挖礦獎勵 ${0} 銀幣${1}"
+  faces:
+    - "(≧∀≦)ゞ"
+    - "⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾"
+    - "(*ﾟ∀ﾟ*)"
+    - "ε٩(๑> ₃ <)۶з"
+    - "ヽ(✿ﾟ▽ﾟ)ノ"
+    - "d(d＇∀＇)"
+    - "(ﾉ>ω<)ﾉ"
 sponsor:
   usage: "§7用法：/rewards sponsor <玩家名稱或 UUID> <金額> [說明]"
   # ${0}＝獎勵金額
