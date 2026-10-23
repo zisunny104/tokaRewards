@@ -10,6 +10,7 @@ import cn.nukkit.event.plugin.*;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.form.response.FormResponseSimple;
+import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import com.google.gson.*;
 import dev.toka.i18n.Messages;
@@ -34,7 +35,8 @@ public final class Main extends PluginBase implements Listener {
     @Override public void onEnable() {
         saveDefaultConfig();
         suggest("rewards",
-                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"help","claim","status","auto","reload","retry","grant","plan"})},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"help","claim","status","auto","reload","retry","grant","sponsor","plan"})},
+                new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"sponsor"}), CommandParameter.newType("玩家", CommandParamType.STRING), CommandParameter.newType("金額", CommandParamType.INT), CommandParameter.newType("說明", true, CommandParamType.RAWTEXT)},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"auto"}), CommandParameter.newEnum("自動領取", new String[]{"on","off"})},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"grant"}), CommandParameter.newType("玩家UUID", CommandParamType.STRING), CommandParameter.newType("命名空間", CommandParamType.STRING), CommandParameter.newType("操作", CommandParamType.STRING), CommandParameter.newType("貨幣", CommandParamType.STRING), CommandParameter.newType("金額", CommandParamType.INT)},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"plan"}), CommandParameter.newEnum("Plan動作", new String[]{"status"})},
@@ -52,7 +54,6 @@ public final class Main extends PluginBase implements Listener {
             planControl = new dev.toka.rewards.plan.PlanControl(this, () -> { closePlan(); attachPlan(); },
                     () -> Set.of("streak","total","last-day","automatic","pending"),
                     (key,args) -> text(key,args), "rewards");
-            sponsors=new Sponsors(this,service);
             scheduleTasks();
             attachPlan();
             getLogger().info(text("log.ready", backend.name().toLowerCase(Locale.ROOT)));
@@ -76,11 +77,6 @@ public final class Main extends PluginBase implements Listener {
         int retry=seconds("maintenance.retry-seconds"),refresh=seconds("plan.refresh-seconds");
         if(retryTask!=null)retryTask.cancel();if(planTask!=null)planTask.cancel();
         retryTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,()->service.retryPending(),retry*20,retry*20);
-        if(sponsorTask!=null)sponsorTask.cancel();
-        if(getConfig().getBoolean("sponsor.enabled",false)){
-            int every=Math.max(10,Math.min(3600,getConfig().getInt("sponsor.check-seconds",60)));
-            sponsorTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,()->sponsors.check(),200,every*20);
-        }
         planTask=getServer().getScheduler().scheduleDelayedRepeatingTask(this,this::publishPlan,refresh*20,refresh*20);
     }
     @Override public void onDisable() {
@@ -95,12 +91,50 @@ public final class Main extends PluginBase implements Listener {
         return service.grant(uuid, namespace, operation, currency, amount);
     }
     private String text(String key, Object... args) { return messages.text(key, args); }
-    private Sponsors sponsors;
-    private cn.nukkit.scheduler.TaskHandler sponsorTask;
-    public dev.toka.i18n.Messages messages() { return messages; }
-    /** Tells a donor who is online that the reward has arrived. */
-    void sponsorPaid(UUID player, long amount) {
-        main(() -> { Player online = getServer().getOnlinePlayers().get(player); if (online != null) online.sendMessage(text("sponsor.paid", amount)); });
+    /**
+     * /rewards sponsor <player> <amount> [text]: the reward for a donation, given once now. The donation is also written in the
+     * player's note in tokaProfiles ({@code donation amount= id= reward=}), which is the record of who gave what.
+     */
+    private void sponsor(CommandSender sender, String[] args) {
+        UUID uuid; long donated;
+        try {
+            Player online = getServer().getPlayerExact(args[1]);
+            uuid = online != null ? online.getUniqueId() : args[1].matches("[0-9a-fA-F-]{36}") ? UUID.fromString(args[1]) : getServer().getOfflinePlayer(args[1]).getUniqueId();
+            donated = Long.parseLong(args[2]);
+            if (donated < 1 || donated > 100_000_000L) throw new NumberFormatException();
+        } catch (RuntimeException bad) { send(sender, "sponsor.usage"); return; }
+        String currency = getConfig().getString("sponsor.currency", "gold");
+        long reward = (long) Math.floor(donated * getConfig().getDouble("sponsor.per-unit", 1));
+        if (reward < 1) { send(sender, "sponsor.usage"); return; }
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        String id = donationId();
+        String said = args.length > 3 ? String.join(" ", java.util.Arrays.copyOfRange(args, 3, args.length)) : "";
+        String line = "donation amount=" + donated + " id=" + id + " reward=" + currency + ":" + reward + " date=" + now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")) + (said.isBlank() ? "" : " # " + said);
+        service.grant(uuid, "sponsor", id, currency, reward).whenComplete((result, error) -> {
+            if (error != null) { error(sender, error); return; }
+            recordDonation(uuid, line);
+            main(() -> {
+                send(sender, "sponsor.done", getServer().getOfflinePlayer(uuid).getName(), donated, reward, result.status());
+                Player online = getServer().getOnlinePlayers().get(uuid);
+                if (online != null) online.sendMessage(text("sponsor.paid", reward));
+            });
+        });
+    }
+
+    /** A random key such as K7QM-2XPD-9TWA: nobody can guess one, and one is never given twice. */
+    private static String donationId() {
+        String letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var random = new java.security.SecureRandom();
+        var out = new StringBuilder();
+        for (int i = 0; i < 12; i++) { if (i > 0 && i % 4 == 0) out.append('-'); out.append(letters.charAt(random.nextInt(letters.length()))); }
+        return out.toString();
+    }
+
+    private void recordDonation(UUID uuid, String line) {
+        Plugin profiles = getServer().getPluginManager().getPlugin("tokaProfiles");
+        if (profiles == null || !profiles.isEnabled()) { getLogger().warning(text("sponsor.noRecord", line)); return; }
+        try { profiles.getClass().getMethod("appendNote", UUID.class, String.class).invoke(null, uuid, line); }
+        catch (ReflectiveOperationException | LinkageError unavailable) { getLogger().warning(text("sponsor.noRecord", line)); }
     }
     private void main(Runnable task) {
         if (isEnabled()) getServer().getScheduler().scheduleTask(this, () -> { if (isEnabled()) task.run(); });
@@ -157,12 +191,14 @@ public final class Main extends PluginBase implements Listener {
             if (admin) { send(sender,"help.retry"); send(sender,"help.reload"); send(sender,"help.grant"); send(sender,"help.plan"); }
             return true;
         }
-        if (Set.of("reload","retry","grant").contains(action)) {
+        if (Set.of("reload","retry","grant","sponsor").contains(action)) {
             if (!admin) { send(sender,"err.permission"); return true; }
             if (action.equals("reload") && args.length == 1) {
                 try { reloadSettings(); send(sender,"msg.reloaded"); } catch(Exception error) { send(sender,"err.failed"); getLogger().error(text("log.config"),error); }
             } else if (action.equals("retry") && args.length == 1) {
                 service.retryPending().whenComplete((count,error)-> { if(error!=null)error(sender,error);else main(()->send(sender,"msg.retry",count)); });
+            } else if (action.equals("sponsor") && args.length >= 3) {
+                sponsor(sender, args);
             } else if (action.equals("grant") && args.length == 6) {
                 try {
                     UUID uuid = UUID.fromString(args[1]); long amount = new java.math.BigDecimal(args[5]).longValueExact();

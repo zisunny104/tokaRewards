@@ -5,13 +5,17 @@ help:
   auto: '§e/rewards auto <on|off> §7- §b設定登入時自動領取'
   retry: '§e/rewards retry §7- §b分批重試待領獎勵'
   reload: '§e/rewards reload §7- §b重新讀取設定'
+  sponsor: '§e/rewards sponsor <玩家> <金額> [說明] §7- §b發放贊助獎勵並記進玩家備註'
   grant: '§e/rewards grant <UUID> <命名空間> <領獎ID> <貨幣> <金額> §7- §b以固定 ID 發放獎勵'
   plan: '§e/rewards plan <status|mode <auto|enable|disable>|fields <all|none|欄位...>> §7- §b管理 Plan 展示'
 sponsor:
+  usage: "§7用法：/rewards sponsor <玩家名稱或 UUID> <金額> [說明]"
   # ${0}＝獎勵金額
   paid: "§7[獎勵] §a感謝您的贊助，獲得 ${0}。"
-  # ${0}＝錯誤類型
-  unavailable: "無法讀取贊助記錄：${0}"
+  # ${0}＝玩家、${1}＝贊助金額、${2}＝發放金額、${3}＝狀態
+  done: "§7[獎勵] §a已記下 ${0} 的贊助 ${1}，發放 ${2}（${3}）"
+  # ${0}＝沒能寫進備註的那一行
+  noRecord: "贊助已發放，但沒有寫進玩家備註（需要 tokaProfiles）：${0}"
 msg:
   PAID: '§7[獎勵] §a簽到完成，獲得 ${0}，連續 ${1} 天。'
   ALREADY: '§7[獎勵] §e今天已簽到。'
