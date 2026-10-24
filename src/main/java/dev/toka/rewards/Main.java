@@ -32,7 +32,7 @@ public final class Main extends PluginBase implements Listener {
 
     @Override public void onEnable() {
         saveDefaultConfig();
-        suggest("rewards",
+        suggest("reward",
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"help","claim","status","auto","reload","retry","grant","sponsor","menu","plan"})},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"sponsor"}), CommandParameter.newType("玩家", CommandParamType.STRING), CommandParameter.newType("金額", CommandParamType.INT), CommandParameter.newType("說明", true, CommandParamType.RAWTEXT)},
                 new CommandParameter[]{CommandParameter.newEnum("動作", new String[]{"auto"}), CommandParameter.newEnum("自動領取", new String[]{"on","off"})},
@@ -51,7 +51,7 @@ public final class Main extends PluginBase implements Listener {
             getServer().getPluginManager().registerEvents(this, this);
             planControl = new dev.toka.rewards.plan.PlanControl(this, () -> { closePlan(); attachPlan(); },
                     () -> Set.of("streak","total","last-day","automatic","pending"),
-                    (key,args) -> text(key,args), "rewards");
+                    (key,args) -> text(key,args), "reward");
             windows = new Windows(this);
             ore = new Ore(this);
             ore.load();
@@ -131,7 +131,7 @@ public final class Main extends PluginBase implements Listener {
     private String text(String key, Object... args) { return messages.text(key, args); }
     public dev.toka.i18n.Messages messages() { return messages; }
     /**
-     * /rewards sponsor <player> <amount> [text]: the reward for a donation, given once now. The donation is also written in the
+     * /reward sponsor <player> <amount> [text]: the reward for a donation, given once now. The donation is also written in the
      * player's note in tokaProfiles ({@code donation amount= id= reward=}), which is the record of who gave what.
      */
     private void sponsor(CommandSender sender, String[] args) {

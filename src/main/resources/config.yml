@@ -25,7 +25,7 @@ vote:
   max-response-bytes: 1048576
   concurrency: 2
   cache-entries: 512
-# 贊助獎勵：管理員用 /rewards sponsor <玩家> <金額> [說明] 發一次，同時記進玩家的備註。
+# 贊助獎勵：管理員用 /reward sponsor <玩家> <金額> [說明] 發一次，同時記進玩家的備註。
 sponsor:
   currency: coin # tokaEconomy 的貨幣代碼（coin＝金幣）
   per-unit: 1 # 每 1 單位贊助金額給多少（無條件捨去）

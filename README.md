@@ -20,7 +20,7 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 1. 將 output 的 JAR 放入 plugins，啟動產生設定。
 2. 檢查貨幣代碼、時區與獎勵金額。儲存預設 sqlite，也支援 json、yaml；不能只改 backend 就當作完成資料搬遷。
 3. 舊簽到資料已由 zero 的交接工具一次性匯入並切換（zero 已退場）；新插件不讀取舊資料格式。
-4. 全新伺服器可自行啟用 daily.enabled，再執行 /rewards reload。
+4. 全新伺服器可自行啟用 daily.enabled，再執行 /reward reload。
 
 私人 API key 僅放 VPS 設定，不要提交 GitHub。三種儲存的 I/O 在背景序列執行，快取與工作佇列都有上限；達上限拒絕新增，不丟棄舊待領紀錄。
 
@@ -28,13 +28,13 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 
 | 指令 | 權限 |
 | --- | --- |
-| /rewards help | 顯示目前身分可用的指令 |
-| /rewards status、claim、auto <on\|off> | tokaRewards.use，預設一般玩家 |
-| /rewards retry、reload | tokaRewards.admin，預設 OP |
-| /rewards grant <UUID> <namespace> <operation> <currency> <amount> | tokaRewards.admin |
-| /rewards plan status | tokaRewards.admin |
-| /rewards plan mode <auto\|enable\|disable> | tokaRewards.admin |
-| /rewards plan fields <all\|none\|欄位...> | tokaRewards.admin |
+| /reward help | 顯示目前身分可用的指令 |
+| /reward status、claim、auto <on\|off> | tokaRewards.use，預設一般玩家 |
+| /reward retry、reload | tokaRewards.admin，預設 OP |
+| /reward grant <UUID> <namespace> <operation> <currency> <amount> | tokaRewards.admin |
+| /reward plan status | tokaRewards.admin |
+| /reward plan mode <auto\|enable\|disable> | tokaRewards.admin |
+| /reward plan fields <all\|none\|欄位...> | tokaRewards.admin |
 
 Plan 預設 mode: auto、fields: all；enable 在 Plan 未就緒時提示，disable 一定不發布。欄位為 streak、total、last-day、automatic、pending，不包含憑證或私人座標。`automatic` 只表示玩家是否啟用登入時自動領取；一般簽到仍是玩家按下視窗按鈕。`total` 顯示為「累計簽到次數」。Plan 自己的玩家頁面閱覽權限仍由 Plan 管理。
 

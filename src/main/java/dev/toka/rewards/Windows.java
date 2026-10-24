@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-/** The windows of /rewards: the check-in window, the vote window and the admin window. They only collect input; the work stays in Main and the commands. */
+/** The windows of /reward: the check-in window, the vote window and the admin window. They only collect input; the work stays in Main and the commands. */
 final class Windows {
     private static final String ICON_CLAIM = "textures/items/gold_ingot";
     private static final String ICON_VOTE = "textures/items/book_written";
@@ -180,9 +180,9 @@ final class Windows {
                         case 0 -> pick(player, "", null, this::sponsorForm);
                         case 1 -> pick(player, "", null, this::grantForm);
                         case 2 -> confirm(player, t("ui.admin.btnRetry"), t("ui.admin.retryAsk"), t("ui.admin.accept"),
-                                p -> plugin.getServer().dispatchCommand(p, "rewards retry"), this::cancelled);
+                                p -> plugin.getServer().dispatchCommand(p, "reward retry"), this::cancelled);
                         case 3 -> confirm(player, t("ui.admin.btnReload"), t("ui.admin.reloadAsk"), t("ui.admin.accept"),
-                                p -> plugin.getServer().dispatchCommand(p, "rewards reload"), this::cancelled);
+                                p -> plugin.getServer().dispatchCommand(p, "reward reload"), this::cancelled);
                         default -> {
                         }
                     }
@@ -242,7 +242,7 @@ final class Windows {
                 return;
             }
             confirm(player, t("ui.admin.confirm"), t("ui.admin.sponsor.content", name, String.format("%,d", value), said.isEmpty() ? "-" : said),
-                    t("ui.admin.accept"), p -> plugin.getServer().dispatchCommand(p, "rewards sponsor " + name + " " + value + (said.isEmpty() ? "" : " " + said)),
+                    t("ui.admin.accept"), p -> plugin.getServer().dispatchCommand(p, "reward sponsor " + name + " " + value + (said.isEmpty() ? "" : " " + said)),
                     this::cancelled);
         }, this::admin);
     }
@@ -280,7 +280,7 @@ final class Windows {
                 return;
             }
             confirm(player, t("ui.admin.confirm"), t("ui.admin.grant.content", name, s, o, code, String.format("%,d", value)),
-                    t("ui.admin.accept"), p -> plugin.getServer().dispatchCommand(p, "rewards grant " + id + " " + s + " " + o + " " + code + " " + value),
+                    t("ui.admin.accept"), p -> plugin.getServer().dispatchCommand(p, "reward grant " + id + " " + s + " " + o + " " + code + " " + value),
                     this::cancelled);
         }, this::admin);
     }
