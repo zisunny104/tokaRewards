@@ -44,6 +44,7 @@ public final class VoteClient implements AutoCloseable {
                 new ArrayBlockingQueue<>(settings.cacheSize()), job -> { Thread t = new Thread(job,"tokaRewards-vote"); t.setDaemon(true); return t; });
     }
     public String url() { return settings.voteUrl(); }
+    public boolean enabled() { return settings.enabled(); }
     /** Whether a vote is marked as claimed on the vote site once its reward has been paid */
     public boolean claimEnabled() { return settings.enabled() && settings.claim(); }
     /** Marks the vote of the last 24 hours as claimed. True only when the site answers that it is claimed. */

@@ -5,6 +5,7 @@ help:
   auto: '§e/rewards auto <on|off> §7- §b設定登入時自動領取'
   retry: '§e/rewards retry §7- §b分批重試待領獎勵'
   reload: '§e/rewards reload §7- §b重新讀取設定'
+  menu: '§e/rewards menu §7- §b開啟管理視窗（贊助、發放、重試、重載）'
   sponsor: '§e/rewards sponsor <玩家> <金額> [說明] §7- §b發放贊助獎勵並記進玩家備註'
   grant: '§e/rewards grant <UUID> <命名空間> <領獎ID> <貨幣> <金額> §7- §b以固定 ID 發放獎勵'
   plan: '§e/rewards plan <status|mode <auto|enable|disable>|fields <all|none|欄位...>> §7- §b管理 Plan 展示'
@@ -26,7 +27,7 @@ sponsor:
   # ${0}＝玩家、${1}＝贊助金額、${2}＝發放金額、${3}＝狀態
   done: "§7[獎勵] §a已記下 ${0} 的贊助 ${1}，發放 ${2}（${3}）"
   # ${0}＝沒能寫進備註的那一行
-  noRecord: "贊助已發放，但沒有寫進玩家備註（需要 tokaProfiles）：${0}"
+  noRecord: "§e贊助已發放，但沒有寫進玩家備註（需要 tokaProfiles）：§a${0}"
 msg:
   PAID: '§7[獎勵] §a簽到完成，獲得 ${0}，連續 ${1} 天。'
   ALREADY: '§7[獎勵] §e今天已簽到。'
@@ -37,6 +38,7 @@ msg:
   retry: '§7[獎勵] §a已排入 ${0} 筆待領獎勵。'
   reloaded: '§7[獎勵] §a設定已重新讀取。'
   processing: '§7[獎勵] §b正在處理。'
+  cancelled: '§7[獎勵] §b已取消。'
   grant: '§7[獎勵] §b狀態：§a${0}§b，領獎 ID：§a${1}§b，金額：§a${2}§b。'
 err:
   permission: '§7[獎勵] §c沒有使用權限。'
@@ -47,14 +49,75 @@ err:
 ui:
   title: 每日簽到
   body: "最後簽到：${0}\n連續 ${1} 天，累計 ${2} 次。"
-  claim: 簽到
-  vote: '投票網址：${0}'
-  back: 返回
+  claim: "§b簽到"
+  voteButton: "§b投票與設定"
+  close: "§c關閉"
+  cancel: "§c取消"
+  vote:
+    title: 投票與簽到
+    how: 如何投票
+    url: "網址：§b${0}§r\n每天可以投一票。"
+    noUrl: 目前沒有設定投票網址。
+    todayHeader: 今天的票
+    today:
+      off: 投票查詢尚未啟用。
+      unknown: 暫時查不到投票紀錄，稍後再試。
+      none: 今天還沒投票。
+      unclaimed: 已投票，簽到時會領到加成。
+      claimed: 已投票，加成已領取。
+    month: 本月票數：${0}
+    bonus: 本月票數達 ${0} 票，簽到金額另加 ${1} 倍。
+    noBonus: 目前投票沒有簽到加成。
+    checkinHeader: 簽到
+    checkin: 連續 ${0} 天，累計 ${1} 次。
+    auto: 登入時自動簽到
+    fact: "小知識：${0}"
+  admin:
+    title: 獎勵管理
+    btnSponsor: "§b發放贊助獎勵"
+    btnGrant: "§b以固定 ID 發放"
+    btnRetry: "§b重試待領獎勵"
+    btnReload: "§b重新讀取設定"
+    accept: "§b確認"
+    confirm: 確認發放
+    retryAsk: 要立刻重試所有待領獎勵嗎？
+    reloadAsk: 要重新讀取 config.yml 嗎？
+    amount: 金額（整數）
+    amountHint: 例如 100
+    amountBad: "§c金額必須是 1 以上的整數"
+    note: 說明（可留空）
+    noteHint: 會寫進玩家備註
+    space: 命名空間
+    spaceHint: 例如 event
+    operation: 領獎 ID
+    operationHint: 同一 ID 只會發一次
+    currency: 貨幣
+    currencyHint: 貨幣代碼
+    pick:
+      title: 選擇玩家
+      hint: 搜尋可縮小線上名單；離線玩家請直接輸入名稱。
+      search: 搜尋線上玩家
+      searchHint: 名稱的一部分
+      online: 線上玩家
+      none: （不選）
+      offline: 離線玩家名稱
+      offlineHint: 有填寫時優先使用
+      missing: "§c請選擇或輸入一位玩家"
+      unknown: "§c找不到玩家 ${0}"
+    sponsor:
+      title: 贊助 ${0}
+      label: "對象：${0}"
+      content: "對象：${0}\n金額：${1}\n說明：${2}"
+    grant:
+      title: 發放給 ${0}
+      label: "對象：${0}"
+      bad: "§c命名空間、領獎 ID、貨幣只能用英數與 _.:-，金額必須是 1 以上的整數"
+      content: "對象：${0}\n命名空間：${1}\n領獎 ID：${2}\n貨幣：${3}\n金額：${4}"
 log:
   ready: '§b獎勵系統就緒：儲存格式 §a${0}'
-  failed: '獎勵資料處理失敗。'
-  config: '設定無效，保留上一份有效設定。'
-  stopped: '獎勵系統已關閉。'
+  failed: '§c獎勵資料處理失敗：§a${0}'
+  config: '§e設定無效，保留上一份有效設定：§a${0}'
+  stopped: '§b獎勵系統已關閉'
 status:
   "on": 開啟
   "off": 關閉
@@ -64,12 +127,64 @@ plan:
   lastDay: 最後簽到日期
   automatic: 登入時自動領取
   pending: 全服待領獎勵
-  ready: 已連接 Plan 資料展示。
-  unsupported: Plan 版本或 API 尚未就緒，獎勵功能可繼續使用。
+  ready: '§b已連接 Plan 資料展示'
+  unsupported: '§ePlan 版本或 API 尚未就緒，獎勵功能可繼續使用'
   unavailable: Plan 資料展示暫時不可用。
-  missing: '已要求啟用 Plan 展示，但 Plan 尚未就緒；使用 /${0} plan mode auto 可改為自動偵測。'
-  detected: '已偵測到 Plan，目前模式 ${0}；使用 /${1} plan status 查看展示設定。'
-  configureFailed: 'Plan 設定未完成：${0}。'
+  missing: '§e已要求啟用 Plan 展示，但 Plan 尚未就緒；使用 /${0} plan mode auto 可改為自動偵測。'
+  detected: '§b已偵測到 Plan，目前模式 §a${0}§b；使用 /${1} plan status 查看展示設定。'
+  configureFailed: '§ePlan 設定未完成：§a${0}'
   noPermission: '§c沒有管理 Plan 展示的權限。'
   configured: '§aPlan 展示設定已儲存；使用 /${0} plan status 查看。'
   usage: '§e/${0} plan status | mode <auto|enable|disable> | fields <all|none|欄位...>'
+fun:
+  facts:
+    - "章魚有三顆心臟。"
+    - "蜂蜜幾乎不會腐壞。"
+    - "金星的一天比它的一年還要長。"
+    - "香蕉在植物學上屬於漿果。"
+    - "鯨魚不是魚，是哺乳動物。"
+    - "光從太陽到地球大約要 8 分多鐘。"
+    - "地球表面大約七成被海水覆蓋。"
+    - "北極熊的皮膚是黑色的。"
+    - "長頸鹿和人類一樣都是七節頸椎。"
+    - "海馬是由爸爸負責懷孕生產。"
+    - "蝴蝶用腳來嚐味道。"
+    - "成年人的骨頭大約有 206 塊。"
+    - "月球每年都會遠離地球幾公分。"
+    - "木星是太陽系最大的行星。"
+    - "水在攝氏 4 度左右密度最大。"
+    - "聲音在水中傳得比在空氣中快。"
+    - "玉山海拔約 3,952 公尺，是台灣最高峰。"
+    - "圓周率是無限不循環小數。"
+    - "珊瑚是動物，不是植物。"
+    - "竹子是草本植物，屬於禾本科。"
+    - "草莓表面的小顆粒才是真正的果實。"
+    - "蜂鳥是少數能向後飛的鳥。"
+    - "烏鴉能記得人的長相。"
+    - "海星沒有大腦。"
+    - "水母沒有心臟，也沒有大腦。"
+    - "袋熊的便便是方塊形的。"
+    - "考拉的指紋和人類很像。"
+    - "螢火蟲發光是用來彼此溝通。"
+    - "企鵝不會飛，但很會游泳。"
+    - "蜜蜂會替作物授粉。"
+    - "Minecraft 最早由 Markus Persson 開發。"
+    - "Minecraft 1.0 在 2011 年 11 月正式發布。"
+    - "苦力怕的誕生，起因於一個做壞的豬模型。"
+    - "終界龍是遊戲裡的第一隻 Boss。"
+    - "地獄走 1 格，相當於主世界走 8 格。"
+    - "多數方塊一組最多可以堆 64 個。"
+    - "貓可以嚇跑苦力怕。"
+    - "鑽石礦多半藏在很深的地底。"
+    - "雞蛋丟出去有機會孵出小雞。"
+    - "村民的職業由他身邊的職業方塊決定。"
+    - "熔岩遇到水會變成黑曜石或鵝卵石。"
+    - "遊戲裡的一天大約是現實的 20 分鐘。"
+    - "洞穴蜘蛛的攻擊會讓人中毒。"
+    - "與末影人對視會激怒它。"
+    - "骷髏被苦力怕炸死時會掉出音樂唱片。"
+    - "基岩在生存模式下無法被破壞。"
+    - "睡在床上可以跳過夜晚。"
+    - "被閃電擊中的苦力怕會變成閃電苦力怕。"
+    - "被閃電擊中的豬會變成殭屍豬布林。"
+    - "一桶熔岩可以當燃料，燒煉很多物品。"
