@@ -159,6 +159,8 @@ public final class Main extends PluginBase implements Listener {
         service.profile(player.getUniqueId()).whenComplete((profile, error) -> main(() -> {
             if (!player.isOnline() || error != null || !service.settings().dailyEnabled()) return;
             publish(player.getUniqueId(), profile);
+            // already checked in today: nothing to offer, so no window and no message
+            if (profile.get("lastDay").getAsString().equals(java.time.LocalDate.now(service.settings().zone()).toString())) return;
             if (profile.get("automatic").getAsBoolean()) claim(player);
             else if (service.settings().showOnJoin()) show(player, profile);
         }));
