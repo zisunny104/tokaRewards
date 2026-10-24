@@ -1,11 +1,12 @@
 name: tokaRewards
 main: dev.toka.rewards.Main
-version: "0.3.5"
+version: "0.3.6"
 api: ["1.0.0"]
 author: zisunny104
 softdepend: [tokaEconomy, Plan]
 commands:
   rewards:
+    aliases: [reward]
     description: "獎勵與每日簽到；claim、status、auto 人人可用，其餘為管理員"
     usage: "/rewards <claim|status|auto|menu|sponsor|grant|retry|reload|plan|help>"
     permission: tokaRewards.use
