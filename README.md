@@ -4,9 +4,9 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 
 ## 功能與狀態
 
-| 功能 | 本階段 |
+| 功能 | 說明 |
 | --- | --- |
-| 每日簽到、自動簽到、連續天數 | 已實作；預設停用，交接完成後啟用 |
+| 每日簽到、自動簽到、連續天數 | 預設停用，由 daily.enabled 開啟 |
 | 跨月、跨年換日 | 依 daily.timezone 計算，預設 Asia/Taipei |
 | 投票查詢與金額加成 | 選用；須自行設定 API key，不消耗投票領取狀態 |
 | 可重試的獎勵入帳 | 相同 operation ID 去重，未入帳保留待領 |
@@ -15,12 +15,11 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 
 ## 安裝與設定
 
-需要 Java 21 與相容的 Nukkit 核心。使用 tokaEconomy 0.4.0 以上的 depositOnce API；沒有可用經濟服務時獎勵會保留待領。tokaStorage 與 tokaI18n 已嵌入，無需另裝共用套件插件。
+需要 Java 21 與相容的 Nukkit 核心。使用 tokaEconomy 的 depositOnce API；沒有可用經濟服務時獎勵會保留待領。tokaStorage 與 tokaI18n 已嵌入，無需另裝共用套件插件。
 
 1. 將 output 的 JAR 放入 plugins，啟動產生設定。
 2. 檢查貨幣代碼、時區與獎勵金額。儲存預設 sqlite，也支援 json、yaml；不能只改 backend 就當作完成資料搬遷。
-3. 舊簽到資料已由 zero 的交接工具一次性匯入並切換（zero 已退場）；新插件不讀取舊資料格式。
-4. 全新伺服器可自行啟用 daily.enabled，再執行 /reward reload。
+3. 設定 daily.enabled 為 true 開啟簽到，再執行 /reward reload。本插件不讀取其他插件的舊資料格式。
 
 私人 API key 僅放 VPS 設定，不要提交 GitHub。三種儲存的 I/O 在背景序列執行，快取與工作佇列都有上限；達上限拒絕新增，不丟棄舊待領紀錄。
 
@@ -38,6 +37,13 @@ Nukkit 獎勵與每日簽到插件。使用 UUID 識別玩家，金額由 tokaEc
 
 Plan 預設 mode: auto、fields: all；enable 在 Plan 未就緒時提示，disable 一定不發布。欄位為 streak、total、last-day、automatic、pending，不包含憑證或私人座標。`automatic` 只表示玩家是否啟用登入時自動領取；一般簽到仍是玩家按下視窗按鈕。`total` 顯示為「累計簽到次數」。Plan 自己的玩家頁面閱覽權限仍由 Plan 管理。
 
+## 簽到視窗
+
+玩家開啟簽到視窗時，上方顯示最後簽到日、連續天數與累計次數。若投票查詢已啟用且有加成設定，再多一行依本月票數算出的加成：已達門檻顯示「本月已投票幾次，簽到金額加成幾倍」，未達門檻顯示還差幾票。
+
+- 已投票（或查不到投票紀錄、投票查詢未啟用）：只有一顆「簽到」按鈕，按下即簽到。
+- 還沒投票：多一段提醒與投票網址（有設定時），並有兩顆按鈕。「簽到」直接簽到；「前往投票後，再來簽到」開啟投票與簽到資訊頁：如何投票、今天的票與本月票數、加成規則、簽到數字，以及登入時自動簽到的開關。
+
 ## API 與安全重試
 
 Main 提供 importProfilesJson、profileJson、grant、planStatusJson、configurePlan。匯入只允許 daily 停用時執行，已有資料必須完全一致，衝突不覆寫。匯入格式與 public 方法請見 Main.java、RewardsService.java；回傳 CompletableFuture 的操作為背景工作，操作遊戲世界請切回主執行緒。
@@ -46,6 +52,6 @@ Main 提供 importProfilesJson、profileJson、grant、planStatusJson、configur
 
 ## 編譯與驗證
 
-執行 build.ps1。產物在本專案 output 與 ../plugin-modernization/output；這些產物不進版控。測試涵蓋跨月跨年、同日重複領取、三種後端、重啟重試、入帳後標記失敗及匯入衝突。尚需在實際伺服器完成舊資料交接與遊戲內驗證。
+執行 build.ps1。產物在本專案 output 與 ../plugin-modernization/output；這些產物不進版控。測試涵蓋跨月跨年、同日重複領取、三種後端、重啟重試、入帳後標記失敗及匯入衝突。
 
-整體拆分紀錄見 [架構文件](https://github.com/zisunny104/zero/blob/master/docs/ARCHITECTURE.md) 為準。
+整體分工見 [架構文件](https://github.com/zisunny104/zero/blob/master/docs/ARCHITECTURE.md)。
