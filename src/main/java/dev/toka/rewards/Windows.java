@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 /** The windows of /reward: the check-in window, the vote window and the admin window. They only collect input; the work stays in Main and the commands. */
 final class Windows {
     private static final String ICON_CLAIM = "textures/items/gold_ingot";
-    private static final String ICON_VOTE = "textures/items/book_written";
     private static final String ICON_SPONSOR = "textures/items/emerald";
     private static final String ICON_GRANT = "textures/items/diamond";
     private static final String ICON_RETRY = "textures/items/compass_item";
@@ -125,26 +124,47 @@ final class Windows {
     // ---- player ----------------------------------------------------------------------------------------------------
 
     /**
-     * The check-in window is a question with two answers. Check in is always the first. The second is a way to vote while today's vote is
-     * still missing, and a plain cancel once it is done (or when the vote count cannot be asked). Closing the window does nothing.
+     * The check-in window. Once today's vote is in, it has the one button to check in. While the vote is missing, the text reminds of it with
+     * the address, and the second button is the way to the vote page; the check-in works either way. The bonus line is worked out from the
+     * month's votes and the settings each time, so it always says what the player has and what is still missing. Closing does nothing.
      */
     void open(Player player, JsonObject profile) {
         plugin.lookupVote(player, snapshot -> {
-            boolean toVote = plugin.voteEnabled() && snapshot.available() && !snapshot.voted();
-            show(player, new FormWindowModal(t("ui.title"), t("ui.body", profile.get("lastDay").getAsString(), profile.get("streak").getAsInt(), profile.get("total").getAsLong()),
-                    t("ui.claim"), t(toVote ? "ui.voteButton" : "ui.cancel")), event -> {
+            var settings = plugin.service().settings();
+            boolean voteKnown = plugin.voteEnabled() && snapshot.available();
+            boolean missing = voteKnown && !snapshot.voted();
+            StringBuilder body = new StringBuilder(t("ui.body", profile.get("lastDay").getAsString(), profile.get("streak").getAsInt(), profile.get("total").getAsLong()));
+            if (voteKnown && settings.voteMultiplier().signum() > 0) {
+                String factor = settings.voteMultiplier().stripTrailingZeros().toPlainString();
+                body.append('\n').append(snapshot.votes() >= settings.voteThreshold()
+                        ? t("ui.bonusOn", String.format("%,d", snapshot.votes()), factor)
+                        : t("ui.bonusNeed", String.format("%,d", snapshot.votes()), String.format("%,d", settings.voteThreshold() - snapshot.votes()), factor));
+            }
+            if (missing) {
+                String url = plugin.voteUrl();
+                body.append('\n').append(t("ui.remind")).append(url.isBlank() ? "" : "\n" + t("ui.remindUrl", url));
+            }
+            if (!missing) {
+                menu(player, t("ui.title"), body.toString(), List.of(t("ui.claim")), Arrays.asList(ICON_CLAIM), index -> claim(player));
+                return;
+            }
+            show(player, new FormWindowModal(t("ui.title"), body.toString(), t("ui.claim"), t("ui.voteButton")), event -> {
                 if (event.wasClosed() || !(event.getResponse() instanceof FormResponseModal response)) {
                     return;
                 }
                 if (response.getClickedButtonId() == 0) {
-                    if (player.hasPermission("tokaRewards.use")) {
-                        plugin.claimFor(player);
-                    }
-                } else if (toVote) {
+                    claim(player);
+                } else {
                     vote(player, profile, snapshot);
                 }
             });
         });
+    }
+
+    private void claim(Player player) {
+        if (player.hasPermission("tokaRewards.use")) {
+            plugin.claimFor(player);
+        }
     }
 
     /** How to vote, what today's vote is worth, the check-in numbers and the auto check-in switch, then a fun fact. */
