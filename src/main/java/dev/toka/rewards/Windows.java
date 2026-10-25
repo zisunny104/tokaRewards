@@ -124,16 +124,21 @@ final class Windows {
 
     // ---- player ----------------------------------------------------------------------------------------------------
 
-    /** The check-in window: claim, vote and settings, close. */
+    /** The check-in window is a question with two answers: check in, or go to the vote and settings. Closing it does nothing. */
     void open(Player player, JsonObject profile) {
-        menu(player, t("ui.title"), t("ui.body", profile.get("lastDay").getAsString(), profile.get("streak").getAsInt(), profile.get("total").getAsLong()),
-                List.of(t("ui.claim"), t("ui.voteButton"), t("ui.close")), Arrays.asList(ICON_CLAIM, ICON_VOTE, null), index -> {
-                    if (index == 0 && player.hasPermission("tokaRewards.use")) {
-                        plugin.claimFor(player);
-                    } else if (index == 1) {
-                        plugin.lookupVote(player, snapshot -> vote(player, profile, snapshot));
-                    }
-                });
+        show(player, new FormWindowModal(t("ui.title"), t("ui.body", profile.get("lastDay").getAsString(), profile.get("streak").getAsInt(), profile.get("total").getAsLong()),
+                t("ui.claim"), t("ui.voteButton")), event -> {
+            if (event.wasClosed() || !(event.getResponse() instanceof FormResponseModal response)) {
+                return;
+            }
+            if (response.getClickedButtonId() == 0) {
+                if (player.hasPermission("tokaRewards.use")) {
+                    plugin.claimFor(player);
+                }
+            } else {
+                plugin.lookupVote(player, snapshot -> vote(player, profile, snapshot));
+            }
+        });
     }
 
     /** How to vote, what today's vote is worth, the check-in numbers and the auto check-in switch, then a fun fact. */
