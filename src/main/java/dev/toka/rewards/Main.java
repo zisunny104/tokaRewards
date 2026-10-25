@@ -27,6 +27,8 @@ public final class Main extends PluginBase implements Listener {
     private Object plan;
     private dev.toka.rewards.plan.PlanControl planControl;
     private cn.nukkit.scheduler.TaskHandler retryTask, planTask;
+    /** The retry runs every minute: a payment that keeps failing for the same reason is logged once, not once per retry. */
+    private final WarnOnce warned = new WarnOnce();
     private Windows windows;
 
     @Override public void onEnable() {
@@ -46,7 +48,7 @@ public final class Main extends PluginBase implements Listener {
             votes = new VoteClient(VoteClient.Settings.parse(getConfig().getAll()), Clock.systemUTC());
             service = new RewardsService(DocumentStore.open(new StoreConfig(backend,
                     getDataFolder().toPath().resolve("storage").resolve(backend.name().toLowerCase(Locale.ROOT)), 1)),
-                    settings, Clock.systemUTC(), Payments::deposit, error -> getLogger().error(text("log.failed", error.getClass().getSimpleName()), error));
+                    settings, Clock.systemUTC(), Payments::deposit, error -> { if (warned.first(error.getClass().getName() + ":" + error.getMessage())) getLogger().error(text("log.failed", error.getClass().getSimpleName()), error); });
             getServer().getPluginManager().registerEvents(this, this);
             planControl = new dev.toka.rewards.plan.PlanControl(this, () -> { closePlan(); attachPlan(); },
                     () -> Set.of("streak","total","last-day","automatic","pending"),
@@ -268,6 +270,7 @@ public final class Main extends PluginBase implements Listener {
     /** Main-thread configuration reload; invalid input leaves live settings intact. Backend changes require migration. */
     public void reloadSettings() {
         reloadConfig();
+        warned.clear();
         RewardSettings next = RewardSettings.parse(getConfig().getAll());
         seconds("maintenance.retry-seconds");seconds("plan.refresh-seconds");
         dev.toka.rewards.plan.PlanControl.parse(getConfig().getAll(),Set.of("streak","total","last-day","automatic","pending"));
