@@ -195,10 +195,22 @@ public final class Main extends PluginBase implements Listener {
     @EventHandler public void onQuit(PlayerQuitEvent event) { windows.forget(event.getPlayer().getUniqueId()); }
     @EventHandler public void onForm(PlayerFormRespondedEvent event) { windows.handle(event); }
     private void show(Player player, JsonObject profile) { windows.open(player, profile); }
+    /** "Processing" goes on the top bar of tokaDisplay (the way the countdowns do) so it does not fill the chat; without it the action bar is used. */
+    private void processingBar(Player player) {
+        var display = getServer().getPluginManager().getPlugin("tokaDisplay");
+        if (display != null && display.isEnabled()) {
+            try {
+                Class.forName("dev.toka.display.Main", true, display.getClass().getClassLoader())
+                        .getMethod("flash", Player.class, String.class, int.class, float.class, String.class).invoke(null, player, text("bar.processing"), 3, 1f, "YELLOW");
+                return;
+            } catch (ReflectiveOperationException | LinkageError older) { /* action bar below */ }
+        }
+        player.sendActionBar(text("bar.processing"));
+    }
     private void claim(Player player) {
         if (!player.hasPermission("tokaRewards.use")) { send(player,"err.permission"); return; }
         UUID uuid = player.getUniqueId(); String name = player.getName();
-        send(player,"msg.processing");
+        processingBar(player);
         votes.lookup(name).thenCompose(vote -> {
                     // with claiming on, only a vote that has not been claimed earns the bonus, and it is claimed once the reward is paid
                     boolean claiming = votes.claimEnabled() && service.settings().voteMultiplier().signum() > 0;
