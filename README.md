@@ -54,4 +54,3 @@ Main 提供 importProfilesJson、profileJson、grant、planStatusJson、configur
 
 執行 build.ps1。產物在本專案 output 與 ../plugin-modernization/output；這些產物不進版控。測試涵蓋跨月跨年、同日重複領取、三種後端、重啟重試、入帳後標記失敗及匯入衝突。
 
-整體分工見 [架構文件](https://github.com/zisunny104/zero/blob/master/docs/ARCHITECTURE.md)。

@@ -7,7 +7,6 @@ import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.event.*;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.plugin.*;
-import cn.nukkit.Server;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import com.google.gson.*;
@@ -105,9 +104,6 @@ public final class Main extends PluginBase implements Listener {
             if (error != null) send(player, "err.failed");
             else send(player, "msg.automatic", text("status." + (on ? "on" : "off")));
         }));
-    }
-    void openStatus(Player player) {
-        service.profile(player.getUniqueId()).thenAccept(profile -> main(() -> { if (player.isOnline()) show(player, profile); }));
     }
     /** An online player, a UUID text, or a player the server knows from its files; null when none fits. */
     UUID uuidOf(String name) {

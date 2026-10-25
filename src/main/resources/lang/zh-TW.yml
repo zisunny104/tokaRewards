@@ -124,7 +124,6 @@ log:
   ready: '§b獎勵系統就緒：儲存格式 §a${0}'
   failed: '§c獎勵資料處理失敗：§a${0}'
   config: '§e設定無效，保留上一份有效設定：§a${0}'
-  stopped: '§b獎勵系統已關閉'
 status:
   "on": 開啟
   "off": 關閉
@@ -136,7 +135,6 @@ plan:
   pending: 全服待領獎勵
   ready: '§b已連接 Plan 資料展示'
   unsupported: '§ePlan 版本或 API 尚未就緒，獎勵功能可繼續使用'
-  unavailable: Plan 資料展示暫時不可用。
   missing: '§e已要求啟用 Plan 展示，但 Plan 尚未就緒；使用 /${0} plan mode auto 可改為自動偵測。'
   detected: '§b已偵測到 Plan，目前模式 §a${0}§b；使用 /${1} plan status 查看展示設定。'
   configureFailed: '§ePlan 設定未完成：§a${0}'
