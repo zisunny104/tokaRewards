@@ -124,20 +124,26 @@ final class Windows {
 
     // ---- player ----------------------------------------------------------------------------------------------------
 
-    /** The check-in window is a question with two answers: check in, or go to the vote and settings. Closing it does nothing. */
+    /**
+     * The check-in window is a question with two answers. Check in is always the first. The second is a way to vote while today's vote is
+     * still missing, and a plain cancel once it is done (or when the vote count cannot be asked). Closing the window does nothing.
+     */
     void open(Player player, JsonObject profile) {
-        show(player, new FormWindowModal(t("ui.title"), t("ui.body", profile.get("lastDay").getAsString(), profile.get("streak").getAsInt(), profile.get("total").getAsLong()),
-                t("ui.claim"), t("ui.voteButton")), event -> {
-            if (event.wasClosed() || !(event.getResponse() instanceof FormResponseModal response)) {
-                return;
-            }
-            if (response.getClickedButtonId() == 0) {
-                if (player.hasPermission("tokaRewards.use")) {
-                    plugin.claimFor(player);
+        plugin.lookupVote(player, snapshot -> {
+            boolean toVote = plugin.voteEnabled() && snapshot.available() && !snapshot.voted();
+            show(player, new FormWindowModal(t("ui.title"), t("ui.body", profile.get("lastDay").getAsString(), profile.get("streak").getAsInt(), profile.get("total").getAsLong()),
+                    t("ui.claim"), t(toVote ? "ui.voteButton" : "ui.cancel")), event -> {
+                if (event.wasClosed() || !(event.getResponse() instanceof FormResponseModal response)) {
+                    return;
                 }
-            } else {
-                plugin.lookupVote(player, snapshot -> vote(player, profile, snapshot));
-            }
+                if (response.getClickedButtonId() == 0) {
+                    if (player.hasPermission("tokaRewards.use")) {
+                        plugin.claimFor(player);
+                    }
+                } else if (toVote) {
+                    vote(player, profile, snapshot);
+                }
+            });
         });
     }
 

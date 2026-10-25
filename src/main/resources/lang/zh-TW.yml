@@ -50,7 +50,7 @@ ui:
   title: 每日簽到
   body: "最後簽到：${0}\n連續 ${1} 天，累計 ${2} 次。"
   claim: "§b簽到"
-  voteButton: "§b投票與設定"
+  voteButton: "§b去投票"
   close: "§c關閉"
   cancel: "§c取消"
   vote:
