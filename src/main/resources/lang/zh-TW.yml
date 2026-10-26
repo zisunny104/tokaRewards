@@ -50,8 +50,8 @@ err:
 ui:
   title: 每日簽到
   body: "最後簽到：${0}\n連續 ${1} 天，累計 ${2} 次。"
-  claim: "§b點擊簽到"
-  voteButton: "§b前往投票後，再來簽到!"
+  claim: "點擊簽到"
+  voteButton: "前往投票後，再來簽到!"
   # ${0}=本月票數 ${1}=加成倍數
   bonusOn: "本月已投票 ${0} 次，簽到金額加成 ${1} 倍。"
   # ${0}=本月票數 ${1}=還差幾票 ${2}=加成倍數
@@ -82,11 +82,11 @@ ui:
     fact: "小知識：${0}"
   admin:
     title: 獎勵管理
-    btnSponsor: "§b發放贊助獎勵"
-    btnGrant: "§b以固定 ID 發放"
-    btnRetry: "§b重試待領獎勵"
-    btnReload: "§b重新讀取設定"
-    accept: "§b確認"
+    btnSponsor: "發放贊助獎勵"
+    btnGrant: "以固定 ID 發放"
+    btnRetry: "重試待領獎勵"
+    btnReload: "重新讀取設定"
+    accept: "確認"
     confirm: 確認發放
     retryAsk: 要立刻重試所有待領獎勵嗎？
     reloadAsk: 要重新讀取 config.yml 嗎？
