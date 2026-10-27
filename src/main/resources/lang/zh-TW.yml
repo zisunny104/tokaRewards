@@ -68,7 +68,7 @@ ui:
     noUrl: 目前沒有設定投票網址。
     todayHeader: 今天的票
     today:
-      off: 投票查詢尚未啟用。
+      "off": 投票查詢尚未啟用。
       unknown: 暫時查不到投票紀錄，稍後再試。
       none: 今天還沒投票。
       unclaimed: 已投票，簽到時會領到加成。
